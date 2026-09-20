@@ -15,4 +15,13 @@
     <Reference Include="System.Management" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="All" />
   </ItemGroup>
+  <!-- One shared source for local Visual Studio builds and offline packaging. -->
+  <ItemGroup>
+    <Content Include="..\..\payload\**\*">
+      <Link>payload\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <TargetPath>payload\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
 </Project>
