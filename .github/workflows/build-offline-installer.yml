@@ -56,17 +56,6 @@ jobs:
           New-Item -ItemType Directory -Force .\artifacts\app\tools\ventoy | Out-Null
           Copy-Item (Join-Path $root.FullName "*") .\artifacts\app\tools\ventoy -Recurse -Force
 
-      - name: Download Microsoft .NET Framework 4.8 offline runtime
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force .\artifacts\redist | Out-Null
-          $runtime = ".\artifacts\redist\ndp48-x86-x64-allos-enu.exe"
-          Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/?linkid=2088631" -OutFile $runtime
-          $signature = Get-AuthenticodeSignature $runtime
-          if ($signature.Status -ne "Valid" -or $signature.SignerCertificate.Subject -notmatch "Microsoft") {
-            throw "The .NET Framework installer does not have a valid Microsoft signature."
-          }
-
       - name: Compile Inno Setup package
         shell: pwsh
         run: |

@@ -25,4 +25,12 @@
       <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
+  <!-- Run for real builds, not IntelliSense/design-time evaluation. -->
+  <PropertyGroup>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+  </PropertyGroup>
+  <Target Name="BundleDotNet48Runtime" AfterTargets="Build"
+          Condition="'$(DesignTimeBuild)' != 'true' and '$(OS)' == 'Windows_NT'">
+    <Exec Command="powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\..\..\build\Bundle-DotNet48.ps1&quot; -CacheDirectory &quot;$(MSBuildProjectDirectory)\..\..\artifacts\redist&quot; -OutputDirectory &quot;$(TargetDir).&quot;" />
+  </Target>
 </Project>

@@ -41,7 +41,7 @@ Windows 11 一般已內建 .NET Framework 4.8 或更新版本；離線 Setup 仍
 
 ## 本機開發
 
-使用 Visual Studio 2022/2026 開啟 `VSRS.Installer.sln`，選擇 Release 後建置。預設輸出位置為 `src\VSRS.Installer\bin\Release\net48\`；`payload` 會自動複製到此處。若要直接執行，仍需先把完整 Ventoy Windows 套件放在輸出目錄的 `tools\ventoy` 下（不是 SSD 資料用的 `payload\ventoy`）。一般建置不會自動產生 Setup 或把 .NET Framework 安裝程式包進 EXE；完整離線 Setup 請使用上述打包流程。
+使用 Visual Studio 2022/2026 開啟 `VSRS.Installer.sln`，選擇 Release 後建置。預設輸出位置為 `src\VSRS.Installer\bin\Release\net48\`；`payload` 會自動複製到此處。若要直接執行，仍需先把完整 Ventoy Windows 套件放在輸出目錄的 `tools\ventoy` 下（不是 SSD 資料用的 `payload\ventoy`）。一般建置會自動攜帶 .NET Framework 4.8 離線安裝檔，但不會自動產生 Setup，也不會把執行階段嵌入 EXE；完整離線 Setup 請使用上述打包流程。
 
 ### Ventoy 安裝入口
 
@@ -50,3 +50,13 @@ Windows 11 一般已內建 .NET Framework 4.8 或更新版本；離線 Setup 仍
 ## 第三方元件
 
 Ventoy 由其原作者提供，版本、授權與原始碼請參閱 [ventoy/Ventoy](https://github.com/ventoy/Ventoy)。本專案沒有修改 Ventoy 二進位檔。
+
+## Visual Studio 建置時自動攜帶 .NET Framework 4.8
+
+Debug 與 Release 都會在建置後執行 `build/Bundle-DotNet48.ps1`。第一次建置需連線下載 Microsoft 官方離線 Runtime，檢查 Microsoft 數位簽章、產品名稱與 4.8 版本後，快取在根目錄 `artifacts/redist/ndp48-x86-x64-allos-enu.exe`。後續建置重用快取，不會重新下載；簽章驗證仍可能需要 Windows 憑證服務的網路存取。
+
+每次建置會把該檔案複製到 EXE 旁的 `redist/ndp48-x86-x64-allos-enu.exe`。請將整個輸出資料夾一起攜帶。目的電腦若缺少 .NET 4.8，先執行此安裝檔，依提示重開機後再啟動主程式。建置過程只下載及複製，不會執行 .NET 安裝程式。
+
+下載或驗證失敗會使建置失敗，避免交付缺少 Runtime 的資料夾。可自行從 https://dotnet.microsoft.com/en-us/download/dotnet-framework/thank-you/net48-offline-installer 取得官方離線檔案，存成上述快取檔名後重新建置。不要使用 Web installer 或 Developer Pack。
+
+此功能針對 Visual Studio「建置／重建」，不是單一 EXE 自包含發行。請更新整份倉庫（包括 build 資料夾與 csproj），不要只更新 C# 原始碼。Visual Studio 受管理的 PowerShell 政策若禁止腳本執行，請依學校的管理規範處理，勿修改組織政策。

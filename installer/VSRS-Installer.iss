@@ -26,7 +26,7 @@ SetupLogging=yes
 Name: "chinesetraditional"; MessagesFile: "compiler:Languages\ChineseTraditional.isl"
 
 [Files]
-Source: "..\artifacts\app\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\artifacts\app\*"; DestDir: "{app}"; Excludes: "redist\*"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\artifacts\redist\ndp48-x86-x64-allos-enu.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Icons]
@@ -37,7 +37,7 @@ Name: "{autodesktop}\VSRS 外接 SSD 安裝工具"; Filename: "{app}\{#MyAppExeN
 Name: "desktopicon"; Description: "建立桌面捷徑"; GroupDescription: "其他選項："; Flags: unchecked
 
 [Run]
-Filename: "{tmp}\dp48-x86-x64-allos-enu.exe"; Parameters: "/q /norestart"; StatusMsg: "正在安裝 Microsoft .NET Framework 4.8……"; Check: not IsDotNet48Installed; Flags: waituntilterminated
+Filename: "{tmp}\ndp48-x86-x64-allos-enu.exe"; Parameters: "/q /norestart"; StatusMsg: "正在安裝 Microsoft .NET Framework 4.8……"; Check: not IsDotNet48Installed; Flags: waituntilterminated
 Filename: "{app}\{#MyAppExeName}"; Description: "啟動 VSRS 外接 SSD 安裝工具"; Flags: nowait postinstall skipifsilent
 
 [Code]
