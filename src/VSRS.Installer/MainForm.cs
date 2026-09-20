@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -147,7 +148,56 @@ namespace VSRS.Installer
             layout.Controls.Add(diskRow, 0, 3);
             layout.Controls.Add(_summary, 0, 4);
             layout.Controls.Add(actionRow, 0, 5);
+            const string contactEmail = "coollinyoung@gmail.com";
+            LinkLabel licenseNotice = new LinkLabel
+            {
+                Text = "本程式只授權新北市各級學校使用，其他縣市欲使用，請洽 板橋國小楊凱文 Email: coollinyoung@gmail.com，取得授權",
+                Dock = DockStyle.Bottom,
+                AutoSize = false,
+                Padding = new Padding(24, 10, 24, 10),
+                Margin = Padding.Empty,
+                ForeColor = Color.FromArgb(205, 219, 236),
+                BackColor = BackColor,
+                LinkColor = Color.FromArgb(130, 195, 255),
+                ActiveLinkColor = Color.White,
+                VisitedLinkColor = Color.FromArgb(130, 195, 255),
+                LinkBehavior = LinkBehavior.AlwaysUnderline,
+                UseMnemonic = false,
+                TabStop = true
+            };
+            licenseNotice.Links.Clear();
+            licenseNotice.Links.Add(
+                licenseNotice.Text.IndexOf(contactEmail, StringComparison.Ordinal),
+                contactEmail.Length);
+            licenseNotice.LinkClicked += (_, __) =>
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "https://mail.google.com/mail/?view=cm&fs=1&to="
+                            + Uri.EscapeDataString(contactEmail),
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("無法開啟瀏覽器，請自行寄信至 " + contactEmail
+                        + Environment.NewLine + ex.Message, "開啟郵件",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            };
+            // Measure wrapping text so the full notice remains visible on narrower windows.
+            licenseNotice.SizeChanged += (_, __) =>
+            {
+                int height = licenseNotice.GetPreferredSize(
+                    new Size(Math.Max(1, licenseNotice.ClientSize.Width), 0)).Height;
+                if (licenseNotice.Height != height)
+                    licenseNotice.Height = height;
+            };
+
             Controls.Add(layout);
+            Controls.Add(licenseNotice);
             Controls.Add(_log);
             Shown += (_, __) => RefreshDisks();
         }
