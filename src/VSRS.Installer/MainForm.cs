@@ -24,6 +24,9 @@ namespace VSRS.Installer
             ClientSize = new Size(790, 520);
             MinimumSize = new Size(806, 559);
             Font = new Font("Microsoft JhengHei UI", 10F);
+            BackColor = Color.FromArgb(28, 39, 54);
+            ForeColor = Color.FromArgb(235, 241, 248);
+            DoubleBuffered = true;
 
             Label title = new Label
             {
@@ -40,19 +43,26 @@ namespace VSRS.Installer
                 Top = 62,
                 Width = 740,
                 Height = 54,
-                ForeColor = Color.DarkRed,
+                ForeColor = Color.FromArgb(255, 190, 158),
                 Text = "安全限制：只顯示 Windows 判定為 USB 匯流排、SSD 媒體類型且具有唯一識別碼的裝置；系統碟、開機碟、內接碟、唯讀碟與離線碟一律封鎖。安裝會清除整顆目標 SSD。"
             };
 
             Label selectLabel = new Label { Left = 24, Top = 130, Width = 180, Text = "選擇外接 SSD：" };
             _disks.SetBounds(24, 156, 610, 30);
             _disks.DropDownStyle = ComboBoxStyle.DropDownList;
+            _disks.BackColor = Color.White;
+            _disks.ForeColor = Color.FromArgb(28, 39, 54);
+            _disks.FlatStyle = FlatStyle.Flat;
+            _disks.DrawMode = DrawMode.OwnerDrawFixed;
+            _disks.ItemHeight = 26;
+            _disks.DrawItem += DrawDiskItem;
             _refresh.SetBounds(648, 154, 116, 32);
             _refresh.Text = "重新偵測";
+            StyleButton(_refresh, false);
             _refresh.Click += (_, __) => RefreshDisks();
 
             _summary.SetBounds(24, 198, 740, 46);
-            _summary.ForeColor = Color.DimGray;
+            _summary.ForeColor = Color.FromArgb(184, 199, 217);
 
             _gpt.SetBounds(24, 248, 300, 28);
             _gpt.Text = "使用 GPT 分割表（建議）";
@@ -60,6 +70,7 @@ namespace VSRS.Installer
 
             _install.SetBounds(574, 242, 190, 40);
             _install.Text = "安裝 Ventoy 到外接 SSD";
+            StyleButton(_install, true);
             _install.Enabled = false;
             _install.Click += async (_, __) => await StartInstallAsync();
 
@@ -67,10 +78,44 @@ namespace VSRS.Installer
             _log.Multiline = true;
             _log.ReadOnly = true;
             _log.ScrollBars = ScrollBars.Vertical;
-            _log.BackColor = Color.White;
+            _log.BackColor = Color.FromArgb(20, 29, 42);
+            _log.ForeColor = Color.FromArgb(205, 219, 236);
+            _log.BorderStyle = BorderStyle.FixedSingle;
 
             Controls.AddRange(new Control[] { title, warning, selectLabel, _disks, _refresh, _summary, _gpt, _install, _log });
             Shown += (_, __) => RefreshDisks();
+        }
+
+        private static void StyleButton(Button button, bool primary)
+        {
+            button.FlatStyle = FlatStyle.Flat;
+            button.UseVisualStyleBackColor = false;
+            button.BackColor = primary ? Color.FromArgb(44, 103, 177) : Color.FromArgb(47, 64, 85);
+            button.ForeColor = Color.White;
+            button.FlatAppearance.BorderSize = 1;
+            button.FlatAppearance.BorderColor = primary ? Color.FromArgb(81, 144, 222) : Color.FromArgb(88, 108, 133);
+            button.FlatAppearance.MouseOverBackColor = primary ? Color.FromArgb(55, 122, 202) : Color.FromArgb(61, 81, 106);
+            button.FlatAppearance.MouseDownBackColor = primary ? Color.FromArgb(33, 79, 139) : Color.FromArgb(36, 51, 70);
+        }
+
+        private void DrawDiskItem(object sender, DrawItemEventArgs e)
+        {
+            // Keep the collapsed selector white even when Windows applies a theme.
+            bool highlighted = (e.State & DrawItemState.Selected) != 0
+                && (e.State & DrawItemState.ComboBoxEdit) == 0;
+            Color background = highlighted ? Color.FromArgb(226, 237, 251) : Color.White;
+            using (SolidBrush brush = new SolidBrush(background))
+                e.Graphics.FillRectangle(brush, e.Bounds);
+            if (e.Index >= 0)
+            {
+                Rectangle bounds = new Rectangle(e.Bounds.X + 6, e.Bounds.Y,
+                    Math.Max(0, e.Bounds.Width - 12), e.Bounds.Height);
+                TextRenderer.DrawText(e.Graphics, _disks.GetItemText(_disks.Items[e.Index]),
+                    e.Font ?? _disks.Font, bounds, Color.FromArgb(28, 39, 54),
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
+                    TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+            }
+            e.DrawFocusRectangle();
         }
 
         private void RefreshDisks()
