@@ -77,7 +77,7 @@ namespace VSRS.Installer
             _install.Enabled = false;
             _install.Click += async (_, __) => await StartInstallAsync();
 
-            _log.SetBounds(24, 304, 740, 220);
+            _log.Size = new Size(740, 150);
             _log.Multiline = true;
             _log.ReadOnly = true;
             _log.ScrollBars = ScrollBars.Vertical;
@@ -85,19 +85,18 @@ namespace VSRS.Installer
             _log.ForeColor = Color.FromArgb(205, 219, 236);
             _log.BorderStyle = BorderStyle.FixedSingle;
 
-            // The log has a fixed 220-unit height; the final empty row takes extra space.
+            // The scrollable form content fills the area above the bottom-docked log.
             TableLayoutPanel layout = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 1,
-                RowCount = 8,
+                RowCount = 7,
                 Padding = new Padding(24, 16, 24, 16),
                 AutoScroll = true
             };
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             for (int row = 0; row < 6; row++)
                 layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 220F));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
 
             foreach (Label label in new[] { title, warning, selectLabel, _summary })
@@ -138,9 +137,9 @@ namespace VSRS.Installer
             actionRow.Controls.Add(_gpt, 0, 0);
             actionRow.Controls.Add(_install, 1, 0);
 
-            _log.Size = new Size(740, 220);
-            _log.MinimumSize = new Size(0, 220);
-            _log.Dock = DockStyle.Fill;
+            _log.Height = 150;
+            _log.MinimumSize = new Size(0, 150);
+            _log.Dock = DockStyle.Bottom;
             _log.Margin = Padding.Empty;
             layout.Controls.Add(title, 0, 0);
             layout.Controls.Add(warning, 0, 1);
@@ -148,8 +147,8 @@ namespace VSRS.Installer
             layout.Controls.Add(diskRow, 0, 3);
             layout.Controls.Add(_summary, 0, 4);
             layout.Controls.Add(actionRow, 0, 5);
-            layout.Controls.Add(_log, 0, 6);
             Controls.Add(layout);
+            Controls.Add(_log);
             Shown += (_, __) => RefreshDisks();
         }
 
