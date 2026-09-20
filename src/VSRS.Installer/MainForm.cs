@@ -21,6 +21,8 @@ namespace VSRS.Installer
         public MainForm()
         {
             Text = "VSRS 外接 SSD 安裝工具";
+            Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+            ShowIcon = true;
             StartPosition = FormStartPosition.CenterScreen;
             ClientSize = new Size(790, 550);
             MinimumSize = new Size(620, 400);

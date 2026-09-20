@@ -24,6 +24,7 @@ WizardStyle=modern
 PrivilegesRequired=admin
 UninstallDisplayIcon={app}\{#MyAppExeName}
 SetupLogging=yes
+SetupIconFile=..\src\VSRS.Installer\Assets\recovery.ico
 
 [Languages]
 Name: "chinesetraditional"; MessagesFile: "compiler:Languages\ChineseTraditional.isl"
@@ -33,8 +34,8 @@ Source: "..\artifacts\app\*"; DestDir: "{app}"; Excludes: "redist\*"; Flags: ign
 Source: "..\artifacts\redist\ndp48-x86-x64-allos-enu.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Icons]
-Name: "{autoprograms}\VSRS 外接 SSD 安裝工具"; Filename: "{app}\{#MyAppExeName}"
-Name: "{autodesktop}\VSRS 外接 SSD 安裝工具"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autoprograms}\VSRS 外接 SSD 安裝工具"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#MyAppExeName}"; IconIndex: 0
+Name: "{autodesktop}\VSRS 外接 SSD 安裝工具"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#MyAppExeName}"; IconIndex: 0; Tasks: desktopicon
 
 [Tasks]
 Name: "desktopicon"; Description: "建立桌面捷徑"; GroupDescription: "其他選項："; Flags: unchecked
