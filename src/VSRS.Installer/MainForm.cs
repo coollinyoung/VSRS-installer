@@ -21,8 +21,8 @@ namespace VSRS.Installer
         {
             Text = "VSRS 外接 SSD 安裝工具";
             StartPosition = FormStartPosition.CenterScreen;
-            ClientSize = new Size(790, 420);
-            MinimumSize = new Size(620, 400);
+            ClientSize = new Size(790, 220);
+            MinimumSize = new Size(620, 220);
             FormBorderStyle = FormBorderStyle.Sizable;
             MaximizeBox = true;
             Font = new Font("Microsoft JhengHei UI", 10F);
@@ -91,7 +91,8 @@ namespace VSRS.Installer
                 ColumnCount = 1,
                 RowCount = 7,
                 Padding = new Padding(24, 16, 24, 16),
-                AutoScroll = true
+                AutoScroll = true,
+                AutoScrollMinSize = new Size(0, 340)
             };
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             for (int row = 0; row < 6; row++)
