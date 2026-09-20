@@ -21,8 +21,10 @@ namespace VSRS.Installer
         {
             Text = "VSRS 外接 SSD 安裝工具";
             StartPosition = FormStartPosition.CenterScreen;
-            ClientSize = new Size(790, 520);
-            MinimumSize = new Size(806, 559);
+            ClientSize = new Size(790, 420);
+            MinimumSize = new Size(620, 400);
+            FormBorderStyle = FormBorderStyle.Sizable;
+            MaximizeBox = true;
             Font = new Font("Microsoft JhengHei UI", 10F);
             BackColor = Color.FromArgb(28, 39, 54);
             ForeColor = Color.FromArgb(235, 241, 248);
@@ -82,7 +84,70 @@ namespace VSRS.Installer
             _log.ForeColor = Color.FromArgb(205, 219, 236);
             _log.BorderStyle = BorderStyle.FixedSingle;
 
-            Controls.AddRange(new Control[] { title, warning, selectLabel, _disks, _refresh, _summary, _gpt, _install, _log });
+            // Auto-sized text rows wrap as the window narrows; the log uses remaining space.
+            TableLayoutPanel layout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 7,
+                Padding = new Padding(24, 16, 24, 16),
+                AutoScroll = true
+            };
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            for (int row = 0; row < 6; row++)
+                layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+
+            foreach (Label label in new[] { title, warning, selectLabel, _summary })
+            {
+                label.AutoSize = true;
+                label.Dock = DockStyle.Fill;
+                label.Margin = new Padding(0, 0, 0, 10);
+            }
+
+            TableLayoutPanel diskRow = new TableLayoutPanel
+            {
+                Dock = DockStyle.Top, AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 2,
+                RowCount = 1, Margin = new Padding(0, 0, 0, 10)
+            };
+            diskRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            diskRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130F));
+            _disks.Dock = DockStyle.Fill;
+            _disks.Margin = new Padding(0, 2, 12, 0);
+            _refresh.Dock = DockStyle.Fill;
+            _refresh.Margin = Padding.Empty;
+            diskRow.Controls.Add(_disks, 0, 0);
+            diskRow.Controls.Add(_refresh, 1, 0);
+
+            TableLayoutPanel actionRow = new TableLayoutPanel
+            {
+                Dock = DockStyle.Top, AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 2,
+                RowCount = 1, Margin = new Padding(0, 0, 0, 12)
+            };
+            actionRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            actionRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 220F));
+            _gpt.AutoSize = true;
+            _gpt.Anchor = AnchorStyles.Left;
+            _gpt.Margin = Padding.Empty;
+            _install.Dock = DockStyle.Fill;
+            _install.Margin = new Padding(12, 0, 0, 0);
+            actionRow.Controls.Add(_gpt, 0, 0);
+            actionRow.Controls.Add(_install, 1, 0);
+
+            _log.Size = new Size(740, 90);
+            _log.MinimumSize = new Size(0, 70);
+            _log.Dock = DockStyle.Fill;
+            _log.Margin = Padding.Empty;
+            layout.Controls.Add(title, 0, 0);
+            layout.Controls.Add(warning, 0, 1);
+            layout.Controls.Add(selectLabel, 0, 2);
+            layout.Controls.Add(diskRow, 0, 3);
+            layout.Controls.Add(_summary, 0, 4);
+            layout.Controls.Add(actionRow, 0, 5);
+            layout.Controls.Add(_log, 0, 6);
+            Controls.Add(layout);
             Shown += (_, __) => RefreshDisks();
         }
 
