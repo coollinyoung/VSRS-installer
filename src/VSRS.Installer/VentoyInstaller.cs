@@ -26,11 +26,11 @@ namespace VSRS.Installer
         {
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string ventoyDirectory = Path.Combine(baseDirectory, "tools", "ventoy");
-            string ventoyExe = Path.Combine(ventoyDirectory, "Ventoy2Disk.exe");
+            string ventoyExe = Path.Combine(ventoyDirectory, "Ventoy2Disk_X64.exe");
             string payloadDirectory = Path.Combine(baseDirectory, "payload");
 
             if (!File.Exists(ventoyExe))
-                throw new FileNotFoundException("找不到內附的 Ventoy2Disk.exe。請使用 GitHub Actions 產出的完整安裝包。", ventoyExe);
+                throw new FileNotFoundException("找不到內附的 Ventoy2Disk_X64.exe。請將 Ventoy2Disk_X64.exe 與完整配套檔案放在程式旁的 tools/ventoy 資料夾。", ventoyExe);
 
             DiskInfo verified = _diskService.GetDisk(selected.Number);
             if (verified == null || !verified.IsEligible || verified.SafetyIdentity != selected.SafetyIdentity)
