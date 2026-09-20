@@ -10,7 +10,7 @@ namespace VSRS.Installer
 
         public ConfirmDialog(DiskInfo disk)
         {
-            _expected = "ERASE " + disk.Number;
+            _expected = "0";
             Text = "最後確認：將清除整顆 SSD";
             StartPosition = FormStartPosition.CenterParent;
             ClientSize = new Size(540, 265);
