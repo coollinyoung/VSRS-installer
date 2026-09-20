@@ -15,7 +15,13 @@
 
 ## 放入自訂資料
 
-將檔案加入 [`payload`](payload) 下對應的七個資料夾後提交。建置時會把內容封裝進離線 Setup；安裝 Ventoy 成功後，程式會將內容複製到外接 SSD 的同名資料夾。
+將檔案加入與 `VSRS.Installer.sln` 同一層的 [`payload`](payload) 資料夾，放進對應的七個子資料夾。支援任意深度的子資料夾。
+
+Visual Studio 專案會以連結顯示這份 `payload`，按「建置」後自動複製到 EXE 旁的 `payload`，不必手動設定每個檔案的屬性，也不必上傳 GitHub。安裝 Ventoy 成功後，程式會將內容複製到外接 SSD 的同名資料夾。
+
+例如：`payload/pe/rescue.iso` 會放到 SSD 的 `pe/rescue.iso`；`payload/apps/MyTool/tool.exe` 會放到 SSD 的 `apps/MyTool/tool.exe`。
+
+檔案放在 EXE 旁，不是嵌入 EXE。搬到另一台電腦時請攜帶整個輸出資料夾。新增檔案後若方案總管未更新，請重新載入專案再建置；移除或更名預置檔案後，請清除舊輸出的 `payload` 再建置，以免舊檔殘留。不要只改輸出目錄，下一次建置會以來源資料夾覆蓋同名檔案。
 
 ## 產生完整離線安裝包
 
@@ -35,9 +41,8 @@ Windows 11 一般已內建 .NET Framework 4.8 或更新版本；離線 Setup 仍
 
 ## 本機開發
 
-使用 Visual Studio 2022/2026 開啟 `VSRS.Installer.sln`。若要直接執行偵錯版本，需先把完整 Ventoy Windows 套件放在輸出目錄的 `tools\ventoy` 下，並把 `payload` 複製到輸出目錄。
+使用 Visual Studio 2022/2026 開啟 `VSRS.Installer.sln`，選擇 Release 後建置。預設輸出位置為 `src\VSRS.Installer\bin\Release\net48\`；`payload` 會自動複製到此處。若要直接執行，仍需先把完整 Ventoy Windows 套件放在輸出目錄的 `tools\ventoy` 下（不是 SSD 資料用的 `payload\ventoy`）。一般建置不會自動產生 Setup 或把 .NET Framework 安裝程式包進 EXE；完整離線 Setup 請使用上述打包流程。
 
 ## 第三方元件
 
 Ventoy 由其原作者提供，版本、授權與原始碼請參閱 [ventoy/Ventoy](https://github.com/ventoy/Ventoy)。本專案沒有修改 Ventoy 二進位檔。
-
