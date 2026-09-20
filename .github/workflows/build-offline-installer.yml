@@ -1,0 +1,86 @@
+name: Build offline installer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - "**/*.md"
+
+permissions:
+  contents: read
+
+env:
+  VENTOY_VERSION: 1.1.17
+  VENTOY_SHA256: d250e97a7595fdac4f97debc630d7a8da942319274a76cb32384596b659dbaeb
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore and build application
+        shell: pwsh
+        run: |
+          dotnet restore .\VSRS.Installer.sln
+          dotnet build .\VSRS.Installer.sln -c Release --no-restore -o .\artifacts\app
+
+      - name: Add payload files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force .\artifacts\app\payload | Out-Null
+          Copy-Item .\payload\* .\artifacts\app\payload -Recurse -Force
+
+      - name: Download and verify official Ventoy
+        shell: pwsh
+        run: |
+          $zip = Join-Path $env:RUNNER_TEMP "ventoy.zip"
+          $url = "https://github.com/ventoy/Ventoy/releases/download/v$env:VENTOY_VERSION/ventoy-$env:VENTOY_VERSION-windows.zip"
+          Invoke-WebRequest -Uri $url -OutFile $zip
+          $actual = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actual -ne $env:VENTOY_SHA256) {
+            throw "Ventoy SHA-256 mismatch. Expected $env:VENTOY_SHA256, got $actual"
+          }
+          $extract = Join-Path $env:RUNNER_TEMP "ventoy-extracted"
+          Expand-Archive $zip $extract -Force
+          $root = Get-ChildItem $extract -Directory | Select-Object -First 1
+          if (-not (Test-Path (Join-Path $root.FullName "Ventoy2Disk.exe"))) {
+            throw "Ventoy2Disk.exe was not found in the official archive."
+          }
+          New-Item -ItemType Directory -Force .\artifacts\app\tools\ventoy | Out-Null
+          Copy-Item (Join-Path $root.FullName "*") .\artifacts\app\tools\ventoy -Recurse -Force
+
+      - name: Download Microsoft .NET Framework 4.8 offline runtime
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force .\artifacts\redist | Out-Null
+          $runtime = ".\artifacts\redist\ndp48-x86-x64-allos-enu.exe"
+          Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/?linkid=2088631" -OutFile $runtime
+          $signature = Get-AuthenticodeSignature $runtime
+          if ($signature.Status -ne "Valid" -or $signature.SignerCertificate.Subject -notmatch "Microsoft") {
+            throw "The .NET Framework installer does not have a valid Microsoft signature."
+          }
+
+      - name: Compile Inno Setup package
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup --yes --no-progress
+          }
+          & $iscc "/DMyAppVersion=1.0.$env:GITHUB_RUN_NUMBER" .\installer\VSRS-Installer.iss
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup compilation failed." }
+
+      - name: Upload offline installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: VSRS-Installer-Offline
+          path: dist/*.exe
+          if-no-files-found: error
+          retention-days: 30
