@@ -50,8 +50,8 @@ jobs:
           $extract = Join-Path $env:RUNNER_TEMP "ventoy-extracted"
           Expand-Archive $zip $extract -Force
           $root = Get-ChildItem $extract -Directory | Select-Object -First 1
-          if (-not (Test-Path (Join-Path $root.FullName "Ventoy2Disk.exe"))) {
-            throw "Ventoy2Disk.exe was not found in the official archive."
+          if (-not (Test-Path (Join-Path $root.FullName "Ventoy2Disk_X64.exe"))) {
+            throw "Ventoy2Disk_X64.exe was not found in the official archive."
           }
           New-Item -ItemType Directory -Force .\artifacts\app\tools\ventoy | Out-Null
           Copy-Item (Join-Path $root.FullName "*") .\artifacts\app\tools\ventoy -Recurse -Force
