@@ -43,6 +43,10 @@ Windows 11 一般已內建 .NET Framework 4.8 或更新版本；離線 Setup 仍
 
 使用 Visual Studio 2022/2026 開啟 `VSRS.Installer.sln`，選擇 Release 後建置。預設輸出位置為 `src\VSRS.Installer\bin\Release\net48\`；`payload` 會自動複製到此處。若要直接執行，仍需先把完整 Ventoy Windows 套件放在輸出目錄的 `tools\ventoy` 下（不是 SSD 資料用的 `payload\ventoy`）。一般建置不會自動產生 Setup 或把 .NET Framework 安裝程式包進 EXE；完整離線 Setup 請使用上述打包流程。
 
+### Ventoy 安裝入口
+
+程式固定呼叫 EXE 旁的 `tools\ventoy\Ventoy2Disk_X64.exe`，保留原有 VTOYCLI 安裝參數與 SSD 防呆機制。找不到此檔案時會停止，不會改用 `Ventoy2Disk.exe`。請提供真正的 x64 執行檔及其完整配套資料，不要僅將其他版本重新命名。自動打包也會檢查下載套件內是否包含指定檔案，缺少時停止建置。
+
 ## 第三方元件
 
 Ventoy 由其原作者提供，版本、授權與原始碼請參閱 [ventoy/Ventoy](https://github.com/ventoy/Ventoy)。本專案沒有修改 Ventoy 二進位檔。
