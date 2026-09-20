@@ -6,6 +6,9 @@
 #define MyAppExeName "VSRS.Installer.exe"
 
 [Setup]
+DiskSpanning=yes
+DiskSliceSize=2000000000
+SlicesPerDisk=1
 AppId={{96C15B23-4609-41F0-B41B-82211B8AA958}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
@@ -38,7 +41,7 @@ Name: "desktopicon"; Description: "建立桌面捷徑"; GroupDescription: "其�
 
 [Run]
 Filename: "{tmp}\ndp48-x86-x64-allos-enu.exe"; Parameters: "/q /norestart"; StatusMsg: "正在安裝 Microsoft .NET Framework 4.8……"; Check: not IsDotNet48Installed; Flags: waituntilterminated
-Filename: "{app}\{#MyAppExeName}"; Description: "啟動 VSRS 外接 SSD 安裝工具"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "啟動 VSRS 外接 SSD 安裝工具"; Flags: nowait postinstall skipifsilent runascurrentuser
 
 [Code]
 function IsDotNet48Installed: Boolean;
