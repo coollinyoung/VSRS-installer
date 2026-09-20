@@ -21,10 +21,11 @@ namespace VSRS.Installer
         {
             Text = "VSRS 外接 SSD 安裝工具";
             StartPosition = FormStartPosition.CenterScreen;
-            ClientSize = new Size(790, 220);
-            MinimumSize = new Size(620, 220);
+            ClientSize = new Size(790, 550);
+            MinimumSize = new Size(620, 400);
             FormBorderStyle = FormBorderStyle.Sizable;
             MaximizeBox = true;
+            WindowState = FormWindowState.Maximized;
             Font = new Font("Microsoft JhengHei UI", 10F);
             BackColor = Color.FromArgb(28, 39, 54);
             ForeColor = Color.FromArgb(235, 241, 248);
@@ -76,7 +77,7 @@ namespace VSRS.Installer
             _install.Enabled = false;
             _install.Click += async (_, __) => await StartInstallAsync();
 
-            _log.SetBounds(24, 304, 740, 190);
+            _log.SetBounds(24, 304, 740, 220);
             _log.Multiline = true;
             _log.ReadOnly = true;
             _log.ScrollBars = ScrollBars.Vertical;
@@ -84,19 +85,19 @@ namespace VSRS.Installer
             _log.ForeColor = Color.FromArgb(205, 219, 236);
             _log.BorderStyle = BorderStyle.FixedSingle;
 
-            // Auto-sized text rows wrap as the window narrows; the log uses remaining space.
+            // The log has a fixed 220-unit height; the final empty row takes extra space.
             TableLayoutPanel layout = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 1,
-                RowCount = 7,
+                RowCount = 8,
                 Padding = new Padding(24, 16, 24, 16),
-                AutoScroll = true,
-                AutoScrollMinSize = new Size(0, 340)
+                AutoScroll = true
             };
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             for (int row = 0; row < 6; row++)
                 layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 220F));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
 
             foreach (Label label in new[] { title, warning, selectLabel, _summary })
@@ -137,8 +138,8 @@ namespace VSRS.Installer
             actionRow.Controls.Add(_gpt, 0, 0);
             actionRow.Controls.Add(_install, 1, 0);
 
-            _log.Size = new Size(740, 90);
-            _log.MinimumSize = new Size(0, 70);
+            _log.Size = new Size(740, 220);
+            _log.MinimumSize = new Size(0, 220);
             _log.Dock = DockStyle.Fill;
             _log.Margin = Padding.Empty;
             layout.Controls.Add(title, 0, 0);
