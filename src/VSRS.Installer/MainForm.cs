@@ -151,6 +151,8 @@ namespace VSRS.Installer
             const string contactEmail = "coollinyoung@gmail.com";
             LinkLabel licenseNotice = new LinkLabel
             {
+                Font = new Font(Font.FontFamily, Font.Size * 3F, Font.Style, Font.Unit),
+                TextAlign = ContentAlignment.MiddleCenter,
                 Text = "本程式只授權新北市各級學校使用，其他縣市欲使用，請洽 板橋國小楊凱文 Email: coollinyoung@gmail.com，取得授權",
                 Dock = DockStyle.Bottom,
                 AutoSize = false,
