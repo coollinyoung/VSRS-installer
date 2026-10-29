@@ -5,6 +5,23 @@
 #define MyAppName "VSRS 外接 SSD 安裝工具"
 #define MyAppExeName "VSRS.Installer.exe"
 
+// Resolve packaging paths relative to this saved script in installer\.
+// Copy the complete Release output into artifacts\app before compiling.
+#ifndef AppSourceDir
+  #define AppSourceDir AddBackslash(SourcePath) + "..\artifacts\app"
+#endif
+#define RuntimeSource AddBackslash(SourcePath) + "..\artifacts\redist\ndp48-x86-x64-allos-enu.exe"
+
+#if !FileExists(AddBackslash(AppSourceDir) + MyAppExeName)
+  #error "Missing VSRS.Installer.exe: copy the complete Release output to artifacts\app, or set AppSourceDir to the complete packaging folder."
+#endif
+#if !FileExists(AddBackslash(AppSourceDir) + "tools\ventoy\Ventoy2Disk_X64.exe")
+  #error "Missing Ventoy2Disk_X64.exe: place the complete Ventoy package in AppSourceDir\tools\ventoy."
+#endif
+#if !FileExists(RuntimeSource)
+  #error "Missing .NET 4.8 offline installer in artifacts\redist. Build the Visual Studio project first."
+#endif
+
 [Setup]
 DiskSpanning=yes
 DiskSliceSize=2000000000
@@ -30,8 +47,8 @@ SetupIconFile=..\src\VSRS.Installer\Assets\recovery.ico
 Name: "chinesetraditional"; MessagesFile: "compiler:Languages\ChineseTraditional.isl"
 
 [Files]
-Source: "..\artifacts\app\*"; DestDir: "{app}"; Excludes: "redist\*"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\artifacts\redist\ndp48-x86-x64-allos-enu.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "{#AppSourceDir}\*"; DestDir: "{app}"; Excludes: "\redist\*"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#RuntimeSource}"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Icons]
 Name: "{autoprograms}\VSRS 外接 SSD 安裝工具"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#MyAppExeName}"; IconIndex: 0
