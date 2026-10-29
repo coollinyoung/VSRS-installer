@@ -78,7 +78,12 @@ namespace VSRS.Installer
             EnsureNtfsDataPartition(verified, targetRoot);
             if (!string.Equals(new DriveInfo(targetRoot).DriveFormat, "NTFS", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("資料分割區未通過 NTFS 驗證，已停止複製資料。");
-            _log("NTFS 驗證通過，開始複製預置資料。");
+            // Apply the same label whether Ventoy produced NTFS directly or fallback formatting ran.
+            DriveInfo dataVolume = new DriveInfo(targetRoot);
+            dataVolume.VolumeLabel = "ventoyUSB";
+            if (!string.Equals(new DriveInfo(targetRoot).VolumeLabel, "ventoyUSB", StringComparison.Ordinal))
+                throw new InvalidOperationException("資料分割區標籤未通過 ventoyUSB 驗證，已停止複製資料。");
+            _log("NTFS 驗證通過，磁碟標籤：ventoyUSB，開始複製預置資料。");
 
             foreach (string folder in RequiredFolders)
             {
@@ -129,7 +134,7 @@ namespace VSRS.Installer
                 + "if ($volume.Count -ne 1) { throw 'Data volume is ambiguous.' }\r\n"
                 + "if ($volume[0].FileSystem -eq 'exFAT') {\r\n"
                 + "  Write-Output 'exFAT detected: formatting verified data partition to NTFS.'\r\n"
-                + "  Format-Volume -Partition $p -FileSystem NTFS -NewFileSystemLabel 'Ventoy' -Force -Confirm:$false | Out-Null\r\n"
+                + "  Format-Volume -Partition $p -FileSystem NTFS -NewFileSystemLabel 'ventoyUSB' -Force -Confirm:$false | Out-Null\r\n"
                 + "} elseif ($volume[0].FileSystem -ne 'NTFS') { throw 'Unexpected filesystem; no automatic format performed.' }\r\n"
                 + "$check = Get-Partition -DiskNumber $disk.Number -PartitionNumber 1 | Get-Volume\r\n"
                 + "if ($check.FileSystem -ne 'NTFS') { throw 'NTFS verification failed.' }\r\n"
