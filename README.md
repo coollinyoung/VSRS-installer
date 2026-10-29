@@ -16,7 +16,7 @@
 
 ## 資料分割區格式
 
-安裝固定傳入 Ventoy 官方 `/FS:NTFS` 參數，將主要資料分割區格式化為 NTFS。掛載後會再次檢查檔案系統；若不是 NTFS，會停止複製預置資料並顯示錯誤，不會回報全部完成。此設定只針對資料分割區，Ventoy 開機分割區由 Ventoy 管理。
+安裝固定傳入 Ventoy 官方 `/FS:NTFS` 參數，將主要資料分割區格式化為 NTFS。先刪除舊的 cli_done.txt，再檢查本次 Ventoy 結束碼與 cli_done.txt 成功狀態。掛載後會重新核對磁碟身分及 Ventoy 的兩個分割區；若第一個資料分割區仍為 exFAT，會透過 Windows Format-Volume 將該分割區快速格式化為 NTFS。只有 NTFS 驗證通過才複製預置資料；未知格式、分割區結構不符或格式化失敗都停止。此設定只針對資料分割區，Ventoy 開機分割區由 Ventoy 管理。
 
 更新程式不會自動轉換已安裝的 exFAT 磁碟；使用新版重新安裝會清除目標磁碟，請先備份資料。
 
@@ -67,3 +67,7 @@ Debug 與 Release 都會在建置後執行 `build/Bundle-DotNet48.ps1`。第一�
 下載或驗證失敗會使建置失敗，避免交付缺少 Runtime 的資料夾。可自行從 https://dotnet.microsoft.com/en-us/download/dotnet-framework/thank-you/net48-offline-installer 取得官方離線檔案，存成上述快取檔名後重新建置。不要使用 Web installer 或 Developer Pack。
 
 此功能針對 Visual Studio「建置／重建」，不是單一 EXE 自包含發行。請更新整份倉庫（包括 build 資料夾與 csproj），不要只更新 C# 原始碼。Visual Studio 受管理的 PowerShell 政策若禁止腳本執行，請依學校的管理規範處理，勿修改組織政策。
+
+## NTFS 修正版 1.0.1 的更新確認
+
+重新建置 Release 後，務必將新版 EXE 與輸出內容複製到 artifacts/app，再編譯 installer/VSRS-Installer.iss。新安裝包名稱包含 1.0.1；開始安裝 Ventoy 時，偵錯區必須出現「NTFS 修正版 1.0.1」，同時列出實際程式路徑、Ventoy 路徑及完整參數。若沒有此訊息，正在執行舊版程式，請勿繼續重試磁碟安裝。新增的 NTFS 格式化只在本次 Ventoy 安裝成功後、複製 payload 前執行，不是保留資料的轉換工具。
