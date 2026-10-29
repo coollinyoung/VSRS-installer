@@ -71,3 +71,11 @@ Debug 與 Release 都會在建置後執行 `build/Bundle-DotNet48.ps1`。第一�
 ## NTFS 修正版 1.0.1 的更新確認
 
 重新建置 Release 後，務必將新版 EXE 與輸出內容複製到 artifacts/app，再編譯 installer/VSRS-Installer.iss。新安裝包名稱包含 1.0.1；開始安裝 Ventoy 時，偵錯區必須出現「NTFS 修正版 1.0.1」，同時列出實際程式路徑、Ventoy 路徑及完整參數。若沒有此訊息，正在執行舊版程式，請勿繼續重試磁碟安裝。新增的 NTFS 格式化只在本次 Ventoy 安裝成功後、複製 payload 前執行，不是保留資料的轉換工具。
+
+## 1.0.2：格式化流程與打包更新
+
+修正 NTFS 處理前依賴隱藏 VTOYEFI 磁區標籤的檢查。仍核對目標磁碟身分、狀態、兩個分割區的位置與大小；只處理第一個資料分割區。以同一個已驗證分割區設定 NTFS 與 ventoyUSB，驗證成功後才複製 payload。
+
+請更新完整專案，使用 Visual Studio Release 重建。建置會自動複製輸出至 artifacts/app（保留另行放入的 tools/ventoy），Inno Setup 會要求主程式檔案版本為 1.0.2.0，拒絕舊 EXE。安裝後視窗標題應顯示 v1.0.2 與 NTFS / ventoyUSB；啟動偵錯紀錄顯示版本及實際執行路徑。覆蓋式複製不會刪除 artifacts/app 內已不存在於來源的舊檔案；移除預置檔案時請同步整理 staging payload。
+
+若仍失敗，請提供完整偵錯視窗內容與 tools/ventoy/cli_log.txt，判斷停止在 Ventoy、磁碟驗證或 Windows 格式化哪個階段。此版本仍需 Windows 實機驗證。

@@ -1,12 +1,12 @@
 #ifndef MyAppVersion
-  #define MyAppVersion "1.0.1"
+  #define MyAppVersion "1.0.2"
 #endif
 
 #define MyAppName "VSRS 外接 SSD 安裝工具"
 #define MyAppExeName "VSRS.Installer.exe"
 
 // Resolve packaging paths relative to this saved script in installer\.
-// Copy the complete Release output into artifacts\app before compiling.
+// Release builds automatically stage the application in artifacts\app.
 #ifndef AppSourceDir
   #define AppSourceDir AddBackslash(SourcePath) + "..\artifacts\app"
 #endif
@@ -14,6 +14,9 @@
 
 #if !FileExists(AddBackslash(AppSourceDir) + MyAppExeName)
   #error "Missing VSRS.Installer.exe: copy the complete Release output to artifacts\app, or set AppSourceDir to the complete packaging folder."
+#endif
+#if GetVersionNumbersString(AddBackslash(AppSourceDir) + MyAppExeName) != "1.0.2.0"
+  #error "Old application in artifacts/app. Rebuild Release from the complete updated project; expected EXE version 1.0.2.0."
 #endif
 #if !FileExists(AddBackslash(AppSourceDir) + "tools\ventoy\Ventoy2Disk_X64.exe")
   #error "Missing Ventoy2Disk_X64.exe: place the complete Ventoy package in AppSourceDir\tools\ventoy."

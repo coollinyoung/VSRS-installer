@@ -20,7 +20,7 @@ namespace VSRS.Installer
 
         public MainForm()
         {
-            Text = "VSRS 外接 SSD 安裝工具";
+            Text = "VSRS 外接 SSD 安裝工具 v" + Application.ProductVersion + "｜NTFS / ventoyUSB";
             Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             ShowIcon = true;
             StartPosition = FormStartPosition.CenterScreen;
@@ -203,7 +203,12 @@ namespace VSRS.Installer
             Controls.Add(layout);
             Controls.Add(licenseNotice);
             Controls.Add(_log);
-            Shown += (_, __) => RefreshDisks();
+            Shown += (_, __) =>
+            {
+                AppendLog("版本：" + Application.ProductVersion + "；目標格式 NTFS，標籤 ventoyUSB");
+                AppendLog("執行位置：" + Application.ExecutablePath);
+                RefreshDisks();
+            };
         }
 
         private static void StyleButton(Button button, bool primary)
@@ -276,7 +281,8 @@ namespace VSRS.Installer
             try
             {
                 VentoyInstaller installer = new VentoyInstaller(_diskService, AppendLog);
-                await Task.Run(() => installer.Install(selected, _gpt.Checked));
+                bool useGpt = _gpt.Checked;
+                await Task.Run(() => installer.Install(selected, useGpt));
                 MessageBox.Show("Ventoy、資料夾與預置資料均已安裝完成。", "完成",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }

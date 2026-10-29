@@ -25,7 +25,7 @@ namespace VSRS.Installer
 
         public void Install(DiskInfo selected, bool useGpt)
         {
-            _log("NTFS 修正版 1.0.1；程式：" + System.Reflection.Assembly.GetExecutingAssembly().Location);
+            _log("NTFS／ventoyUSB 修正版 1.0.2；程式：" + System.Reflection.Assembly.GetExecutingAssembly().Location);
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string ventoyDirectory = Path.Combine(baseDirectory, "tools", "ventoy");
             string ventoyExe = Path.Combine(ventoyDirectory, "Ventoy2Disk_X64.exe");
@@ -78,9 +78,7 @@ namespace VSRS.Installer
             EnsureNtfsDataPartition(verified, targetRoot);
             if (!string.Equals(new DriveInfo(targetRoot).DriveFormat, "NTFS", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("資料分割區未通過 NTFS 驗證，已停止複製資料。");
-            // Apply the same label whether Ventoy produced NTFS directly or fallback formatting ran.
-            DriveInfo dataVolume = new DriveInfo(targetRoot);
-            dataVolume.VolumeLabel = "ventoyUSB";
+            // Verify the label applied to the validated partition inside PowerShell.
             if (!string.Equals(new DriveInfo(targetRoot).VolumeLabel, "ventoyUSB", StringComparison.Ordinal))
                 throw new InvalidOperationException("資料分割區標籤未通過 ventoyUSB 驗證，已停止複製資料。");
             _log("NTFS 驗證通過，磁碟標籤：ventoyUSB，開始複製預置資料。");
@@ -128,8 +126,7 @@ namespace VSRS.Installer
                 + " -or ($p.Offset + $p.Size) -gt $efi[0].Offset"
                 + " -or $p.DriveLetter -ne " + PsLiteral(targetRoot.Substring(0, 1))
                 + ") { throw 'Data partition validation failed.' }\r\n"
-                + "$bootVolume = @($efi[0] | Get-Volume)\r\n"
-                + "if ($bootVolume.Count -ne 1 -or $bootVolume[0].FileSystemLabel -ne 'VTOYEFI') { throw 'VTOYEFI partition not verified.' }\r\n"
+                // Hidden VTOYEFI need not be exposed as an MSFT_Volume. Validate its layout above.
                 + "$volume = @($p | Get-Volume)\r\n"
                 + "if ($volume.Count -ne 1) { throw 'Data volume is ambiguous.' }\r\n"
                 + "if ($volume[0].FileSystem -eq 'exFAT') {\r\n"
@@ -138,7 +135,10 @@ namespace VSRS.Installer
                 + "} elseif ($volume[0].FileSystem -ne 'NTFS') { throw 'Unexpected filesystem; no automatic format performed.' }\r\n"
                 + "$check = Get-Partition -DiskNumber $disk.Number -PartitionNumber 1 | Get-Volume\r\n"
                 + "if ($check.FileSystem -ne 'NTFS') { throw 'NTFS verification failed.' }\r\n"
-                + "Write-Output 'NTFS verified.'\r\n"
+                + "Set-Volume -InputObject $check -NewFileSystemLabel 'ventoyUSB'\r\n"
+                + "$check = Get-Partition -DiskNumber $disk.Number -PartitionNumber 1 | Get-Volume\r\n"
+                + "if ($check.FileSystem -ne 'NTFS' -or $check.FileSystemLabel -cne 'ventoyUSB') { throw 'Final NTFS/ventoyUSB verification failed.' }\r\n"
+                + "Write-Output 'NTFS / ventoyUSB verified.'\r\n"
                 + "} catch { Write-Output ($_ | Out-String); exit 1 }\r\n";
             string windows = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
             string system = Environment.Is64BitOperatingSystem && !Environment.Is64BitProcess ? "Sysnative" : "System32";

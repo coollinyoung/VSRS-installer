@@ -2,8 +2,8 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net48</TargetFramework>
-    <Version>1.0.1</Version>
-    <FileVersion>1.0.1.0</FileVersion>
+    <Version>1.0.2</Version>
+    <FileVersion>1.0.2.0</FileVersion>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <UseWindowsForms>true</UseWindowsForms>
     <LangVersion>latest</LangVersion>
@@ -35,5 +35,18 @@
   <Target Name="BundleDotNet48Runtime" AfterTargets="Build"
           Condition="'$(DesignTimeBuild)' != 'true' and '$(OS)' == 'Windows_NT'">
     <Exec Command="powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\..\..\build\Bundle-DotNet48.ps1&quot; -CacheDirectory &quot;$(MSBuildProjectDirectory)\..\..\artifacts\redist&quot; -OutputDirectory &quot;$(TargetDir).&quot;" />
+  </Target>
+  <!-- Stage freshly built Release files so Inno Setup cannot silently package an old EXE.
+       Copy only; preserve the separately supplied Ventoy tools and user staging files. -->
+  <Target Name="StageReleaseForInstaller" AfterTargets="BundleDotNet48Runtime"
+          Condition="'$(Configuration)' == 'Release' and '$(DesignTimeBuild)' != 'true' and '$(OS)' == 'Windows_NT'">
+    <ItemGroup>
+      <InstallerStageFiles Include="$(TargetDir)**\*"
+                           Exclude="$(TargetDir)tools\**\*;$(TargetDir)redist\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(InstallerStageFiles)"
+          DestinationFiles="@(InstallerStageFiles->'$(MSBuildProjectDirectory)\..\..\artifacts\app\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+    <Message Importance="high" Text="Installer source updated: artifacts\app (version $(Version))" />
   </Target>
 </Project>
