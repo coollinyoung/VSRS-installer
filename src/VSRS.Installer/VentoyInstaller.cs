@@ -36,10 +36,11 @@ namespace VSRS.Installer
             if (verified == null || !verified.IsEligible || verified.SafetyIdentity != selected.SafetyIdentity)
                 throw new InvalidOperationException("磁碟狀態或身分已改變，為避免誤寫入，作業已中止。請重新整理並再次選擇外接 SSD。");
 
-            _log($"再次驗證完成：磁碟 {verified.Number}，USB 外接 SSD，非系統／開機磁碟。");
+            _log($"再次驗證完成：磁碟 {verified.Number}，{verified.DetectionText}，非系統／開機磁碟。");
+            _log("已解除 USB 與 SSD 類型限制；使用者須自行確認目標磁碟並承擔資料清除風險。");
             _log("開始安裝 Ventoy；此步驟將清除目標 SSD 的全部資料。");
 
-            string arguments = $"VTOYCLI /I /PhyDrive:{verified.Number}" + (useGpt ? " /GPT" : string.Empty);
+            string arguments = $"VTOYCLI /I /PhyDrive:{verified.Number} /NOUSBCheck" + (useGpt ? " /GPT" : string.Empty);
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 FileName = ventoyExe,

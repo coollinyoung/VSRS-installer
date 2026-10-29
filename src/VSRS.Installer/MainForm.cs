@@ -50,10 +50,10 @@ namespace VSRS.Installer
                 Width = 740,
                 Height = 54,
                 ForeColor = Color.FromArgb(255, 190, 158),
-                Text = "安全限制：只顯示 Windows 判定為 USB 匯流排、SSD 媒體類型且具有唯一識別碼的裝置；系統碟、開機碟、內接碟、唯讀碟與離線碟一律封鎖。安裝會清除整顆目標 SSD。"
+                Text = "風險提示：已解除 USB 與 SSD 類型限制，清單可能包含真正的內接資料碟。請自行確認目標為要使用的外接 SSD，並承擔選錯磁碟的風險。安裝會清除整顆目標磁碟；系統碟、開機碟、唯讀碟、離線碟與缺少識別碼的磁碟仍封鎖。"
             };
 
-            Label selectLabel = new Label { Left = 24, Top = 130, Width = 180, Text = "選擇外接 SSD：" };
+            Label selectLabel = new Label { Left = 24, Top = 130, Width = 180, Text = "選擇目標磁碟（請自行確認為外接 SSD）：" };
             _disks.SetBounds(24, 156, 610, 30);
             _disks.DropDownStyle = ComboBoxStyle.DropDownList;
             _disks.BackColor = Color.White;
@@ -249,8 +249,8 @@ namespace VSRS.Installer
                 _install.Enabled = eligible.Count > 0;
                 int blocked = all.Count - eligible.Count;
                 _summary.Text = eligible.Count == 0
-                    ? $"找不到符合條件的外接 SSD（已封鎖 {blocked} 顆其他磁碟）。未回報 SSD 類型或唯一識別碼的 USB 轉接盒，基於安全理由也不會列出。"
-                    : $"找到 {eligible.Count} 顆可用外接 SSD；另有 {blocked} 顆磁碟因安全規則未顯示。";
+                    ? $"找不到可用目標磁碟（已封鎖 {blocked} 顆磁碟）。請確認磁碟非系統／開機碟、可寫入、在線且具有唯一識別碼。"
+                    : $"找到 {eligible.Count} 顆可選磁碟（含可能的內接資料碟）；另有 {blocked} 顆因安全規則未顯示。";
                 AppendLog("磁碟清單已更新。");
             }
             catch (Exception ex)

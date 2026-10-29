@@ -19,7 +19,10 @@ namespace VSRS.Installer
         public bool IsUsb => BusType == 7;
         public bool IsSsd => MediaType == 4;
         public bool HasStableIdentifier => !string.IsNullOrWhiteSpace(UniqueId) || !string.IsNullOrWhiteSpace(SerialNumber);
-        public bool IsEligible => IsUsb && IsSsd && HasStableIdentifier && !IsBoot && !IsSystem && !IsReadOnly && !IsOffline;
+        // Bus/media classifications can be incorrect for external enclosures.
+        public bool IsEligible => HasStableIdentifier && !IsBoot && !IsSystem && !IsReadOnly && !IsOffline;
+        public string DetectionText => (IsUsb ? "USB" : "非 USB／可能為內接碟")
+            + (IsSsd ? "、SSD" : "、未辨識為 SSD");
 
         public string SafetyIdentity
         {
@@ -35,7 +38,7 @@ namespace VSRS.Installer
         public override string ToString()
         {
             string serial = string.IsNullOrWhiteSpace(SerialNumber) ? "無序號" : SerialNumber.Trim();
-            return $"磁碟 {Number}｜{FriendlyName}｜{SizeText}｜S/N {serial}";
+            return $"磁碟 {Number}｜{FriendlyName}｜{SizeText}｜S/N {serial}｜{DetectionText}";
         }
     }
 }
