@@ -38,9 +38,9 @@ namespace VSRS.Installer
 
             _log($"再次驗證完成：磁碟 {verified.Number}，{verified.DetectionText}，非系統／開機磁碟。");
             _log("已解除 USB 與 SSD 類型限制；使用者須自行確認目標磁碟並承擔資料清除風險。");
-            _log("開始安裝 Ventoy；此步驟將清除目標 SSD 的全部資料。");
+            _log("開始安裝 Ventoy，資料分割區指定為 NTFS；此步驟將清除目標 SSD 的全部資料。");
 
-            string arguments = $"VTOYCLI /I /PhyDrive:{verified.Number} /NOUSBCheck" + (useGpt ? " /GPT" : string.Empty);
+            string arguments = $"VTOYCLI /I /PhyDrive:{verified.Number} /NOUSBCheck /FS:NTFS" + (useGpt ? " /GPT" : string.Empty);
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 FileName = ventoyExe,
@@ -63,6 +63,13 @@ namespace VSRS.Installer
             _log("Ventoy 安裝成功，等待 Windows 掛載資料分割區……");
             string targetRoot = _diskService.WaitForLargestVolume(verified.Number, TimeSpan.FromSeconds(60));
             _log("資料分割區：" + targetRoot);
+
+            // Verify the mounted data volume before copying payload or reporting success.
+            string fileSystem = new DriveInfo(targetRoot).DriveFormat;
+            _log("資料分割區檔案系統：" + fileSystem);
+            if (!string.Equals(fileSystem, "NTFS", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Ventoy 資料分割區格式為 " + fileSystem
+                    + "，預期為 NTFS。已停止複製資料，請檢查 Ventoy 套件及 cli_log.txt。");
 
             foreach (string folder in RequiredFolders)
             {
